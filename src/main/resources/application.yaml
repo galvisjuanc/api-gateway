@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            # Ruta para el microservicio de Vehículos
+            - id: ms-vehiculos
+              uri: lb://ms-vehiculos # lb:// significa Load Balancer (usa Eureka)
+              predicates:
+                - Path=/api/vehiculos/**
+
+            # Ruta para el microservicio de Operaciones
+            - id: ms-operaciones
+              uri: lb://ms-operaciones
+              predicates:
+                - Path=/api/operaciones/**
+
+  eureka:
+    client:
+      service-url:
+        defaultZone: http://localhost:8761/eureka/
