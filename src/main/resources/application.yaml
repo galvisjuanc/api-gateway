@@ -3,22 +3,31 @@ spring:
     name: api-gateway
   cloud:
     gateway:
-      server:
-        webflux:
-          routes:
-            # Ruta para el microservicio de Vehículos
-            - id: ms-vehiculos
-              uri: lb://ms-vehiculos # lb:// significa Load Balancer (usa Eureka)
-              predicates:
-                - Path=/api/vehiculos/**
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        # Ruta para el microservicio de Vehículos
+        - id: ms-vehiculos
+          uri: lb://ms-vehiculos # lb:// significa Load Balancer (usa Eureka)
+          predicates:
+            - Path=/api/vehiculos/**
 
-            # Ruta para el microservicio de Operaciones
-            - id: ms-operaciones
-              uri: lb://ms-operaciones
-              predicates:
-                - Path=/api/operaciones/**
+        # Ruta para el microservicio de Operaciones
+        - id: ms-operaciones
+          uri: lb://ms-operaciones
+          predicates:
+            - Path=/api/operaciones/**
 
   eureka:
     client:
+      register-with-eureka: true
+      fetch-registry: true
       service-url:
-        defaultZone: http://localhost:8761/eureka/
+        defaultZone: http://eurekaserver:8761/eureka/ # <--- Cámbialo aquí también por si acaso
+    instance:
+      hostname: api-gateway
+      prefer-ip-address: true
+      lease-renewal-interval-in-seconds: 5  # Renueva cada 5 segundos
+      lease-expiration-duration-in-seconds: 10
