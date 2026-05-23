@@ -5,25 +5,40 @@ spring:
     gateway:
       server:
         webflux:
-          routes:
-          # Ruta para el microservicio de Vehículos
-          - id: ms-vehiculos
-            uri: lb://MS-VEHICULOS # lb:// significa Load Balancer (usa Eureka)
-            predicates:
-              - Path=/api/vehiculos, /api/vehiculos/**
 
-          # Ruta para el microservicio de Operaciones
-          - id: ms-operaciones
-            uri: lb://MS-OPERACIONES
-            predicates:
-              - Path=/api/operaciones, /api/operaciones/**
+          # 1. Las rutas van directamente bajo 'gateway'
+          routes:
+            # Ruta para el microservicio de Vehículos
+            - id: ms-vehiculos
+              uri: lb://MS-VEHICULOS
+              predicates:
+                - Path=/api/vehiculos, /api/vehiculos/**
+
+            # Ruta para el microservicio de Operaciones
+            - id: ms-operaciones
+              uri: lb://MS-OPERACIONES
+              predicates:
+                - Path=/api/operaciones, /api/operaciones/**
+
+          # 2. CORS va bajo 'globalcors', no 'globals'
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins: "http://localhost:5173"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS # Muy importante agregar OPTIONS para las peticiones preflight de React
+                allowedHeaders: "*"
 
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://eurekaserver:8761/eureka/ # <--- Cámbialo aquí también por si acaso
+      defaultZone: http://eurekaserver:8761/eureka/
   instance:
     hostname: api-gateway
     prefer-ip-address: true
@@ -32,3 +47,5 @@ eureka:
 
 server:
   port: 8080
+
+kind: Application
